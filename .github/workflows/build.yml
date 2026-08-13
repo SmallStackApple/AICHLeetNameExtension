@@ -1,0 +1,91 @@
+name: Build extension
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Read project name
+        id: project
+        shell: pwsh
+        run: |
+          $projectFile = Get-ChildItem -Path $env:GITHUB_WORKSPACE -Filter '*.csproj' -File | Select-Object -First 1
+          if ($null -eq $projectFile) {
+            throw 'No .csproj file was found in the repository root.'
+          }
+
+          [xml]$projectXml = Get-Content -LiteralPath $projectFile.FullName
+          $assemblyName = $projectXml.Project.PropertyGroup.AssemblyName | Select-Object -First 1
+          if ([string]::IsNullOrWhiteSpace($assemblyName)) {
+            $assemblyName = [IO.Path]::GetFileNameWithoutExtension($projectFile.Name)
+          }
+
+          "name=$assemblyName" >> $env:GITHUB_OUTPUT
+          "file=$($projectFile.FullName)" >> $env:GITHUB_OUTPUT
+
+      - name: Restore NuGet packages
+        shell: pwsh
+        run: |
+          msbuild "${{ steps.project.outputs.file }}" `
+            /t:Restore `
+            /p:Configuration=Release `
+            /p:Platform=x64
+
+      - name: Build Release
+        shell: pwsh
+        run: |
+          msbuild "${{ steps.project.outputs.file }}" `
+            /t:Rebuild `
+            /p:Configuration=Release `
+            /p:Platform=x64 `
+            /m
+
+      - name: Package Release output
+        id: package
+        shell: pwsh
+        env:
+          PROJECT_NAME: ${{ steps.project.outputs.name }}
+        run: |
+          $releasePath = Join-Path $env:GITHUB_WORKSPACE 'bin\x64\Release'
+          $packagePath = Join-Path $env:RUNNER_TEMP $env:PROJECT_NAME
+          $projectDirectory = Join-Path $packagePath $env:PROJECT_NAME
+          $zipPath = Join-Path $env:GITHUB_WORKSPACE "$($env:PROJECT_NAME).zip"
+
+          if (-not (Test-Path -LiteralPath $releasePath -PathType Container)) {
+            throw "Release output directory was not found: $releasePath"
+          }
+
+          New-Item -ItemType Directory -Path $projectDirectory -Force | Out-Null
+
+          # Copy the complete Release tree; reference-only files are outside this path.
+          Get-ChildItem -LiteralPath $releasePath -Force | ForEach-Object {
+            Copy-Item -LiteralPath $_.FullName -Destination $projectDirectory -Recurse -Force
+          }
+
+          if (Test-Path -LiteralPath $zipPath) {
+            Remove-Item -LiteralPath $zipPath -Force
+          }
+
+          Compress-Archive -Path $projectDirectory -DestinationPath $zipPath -CompressionLevel Optimal
+          "path=$zipPath" >> $env:GITHUB_OUTPUT
+
+      - name: Upload package
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.project.outputs.name }}
+          path: ${{ steps.package.outputs.path }}
+          if-no-files-found: error
