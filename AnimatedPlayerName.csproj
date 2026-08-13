@@ -7,8 +7,8 @@
     <ProjectGuid>{C39D11F2-8E5A-4B7D-9A1C-0F2E3A4B5C6D}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>LeetName</RootNamespace>
-    <AssemblyName>LeetName</AssemblyName>
+    <RootNamespace>AnimatedPlayerName</RootNamespace>
+    <AssemblyName>AnimatedPlayerName</AssemblyName>
     <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -37,8 +37,8 @@
     The folder is shipped with the extension and holds AliceInCradleHack.dll, its
     dependency DLLs, and the game/Unity DLLs — so building this project does NOT
     require building the main repo first.
-    <Private>False</Private>: compile-only, so bin output stays a single LeetName.dll;
-    deploy LeetName.dll together with the AliceInCradleHackRefs\ folder (as lib\).
+    <Private>False</Private>: compile-only, so bin output stays a single AnimatedPlayerName.dll;
+    deploy AnimatedPlayerName.dll together with the AliceInCradleHackRefs\ folder (as lib\).
   -->
   <ItemGroup>
     <Reference Include="$(MSBuildProjectDirectory)\AliceInCradleHackRefs\*.dll">
@@ -53,8 +53,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="LeetNameExtension.cs" />
-    <Compile Include="LeetNameModule.cs" />
+    <Compile Include="AnimatedPlayerNameExtension.cs" />
+    <Compile Include="AnimatedPlayerNameModule.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

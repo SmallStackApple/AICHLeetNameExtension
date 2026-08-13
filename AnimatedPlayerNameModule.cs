@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 
-namespace LeetName
+namespace AnimatedPlayerName
 {
     /// <summary>
     /// Registers an animated leet / ASCII-split name as the player's Kaleidoscopic multiplayer name.
@@ -18,9 +18,9 @@ namespace LeetName
     /// AS/ -> AS/\ -> AS/\/ -> AS/\/\ -> ASM -> AS/\/\ -> AS/\/ -> ...). Middle characters can use
     /// leet forms (S -> 5, E -> 3, ...).
     /// </summary>
-    public sealed class LeetNameModule : Module
+    public sealed class AnimatedPlayerNameModule : Module
     {
-        public LeetNameModule() : base("LeetName", "Animated leet/split name for the Kaleidoscopic multiplayer display.", "Misc")
+        public AnimatedPlayerNameModule() : base("AnimatedPlayerName", "Animated leet/split name for the Kaleidoscopic multiplayer display.", "Misc")
         {
         }
 
@@ -31,7 +31,7 @@ namespace LeetName
         public readonly RangedValue<int> HoldMs = new(defaultValue: 400, min: 0, max: 5000, suffix: "ms", description: "How long the full name stays visible before breaking down (0 = no hold).");
         public readonly Value<bool> UseLeet = new(defaultValue: true, description: "Use leet forms for middle characters.");
 
-        private static readonly Harmony _harmony = new("leetname.module");
+        private static readonly Harmony _harmony = new("animatedplayername.module");
         private static readonly Stopwatch _clock = new();
         private static readonly object _sync = new();
 
@@ -76,12 +76,12 @@ namespace LeetName
             var original = AccessTools.Method("Kaleidoscopic.Syncs.SyncPatcherPlayers:createPlayerInfo");
             if (original == null)
             {
-                Log.Error("LeetName: Kaleidoscopic.Syncs.SyncPatcherPlayers.createPlayerInfo not found.");
+                Log.Error("AnimatedPlayerName: Kaleidoscopic.Syncs.SyncPatcherPlayers.createPlayerInfo not found.");
                 return;
             }
 
-            _harmony.Patch(original, postfix: new HarmonyMethod(typeof(LeetNameModule), nameof(CreatePlayerInfoPostfix)));
-            Log.Info("LeetName: animated name patch applied.");
+            _harmony.Patch(original, postfix: new HarmonyMethod(typeof(AnimatedPlayerNameModule), nameof(CreatePlayerInfoPostfix)));
+            Log.Info("AnimatedPlayerName: animated name patch applied.");
         }
 
         public override void Disable()
