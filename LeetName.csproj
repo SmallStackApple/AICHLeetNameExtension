@@ -55,7 +55,6 @@
   <ItemGroup>
     <Compile Include="LeetNameExtension.cs" />
     <Compile Include="LeetNameModule.cs" />
-    <Compile Include="LeetNameCommand.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

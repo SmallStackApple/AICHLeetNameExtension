@@ -13,7 +13,6 @@ namespace LeetName
     public sealed class LeetNameExtension : Extension
     {
         private readonly LeetNameModule _module = new();
-        private readonly LeetNameCommand _command = new();
 
         public override string Name => "LeetName";
 
@@ -30,21 +29,15 @@ namespace LeetName
                 return;
             }
 
-            CommandManager.Instance.RegisterCommand(_command);
-
             // Re-apply the persisted enabled state for this late-registered module
             // (built-in modules are re-applied by ModuleManager during its own Initialize).
             if (!_module.IsEnabled)
                 ModuleManager.Instance.EnableModule(_module.Name);
-
-            Log.Info($"[{Name}] registered module '{_module.Name}' and command '{_command.Name}'.");
         }
 
         public override void Dispose()
         {
-            CommandManager.Instance.UnregisterCommand(_command.Name);
             ModuleManager.Instance.UnregisterModule(_module.Name);
-            Log.Info($"[{Name}] unregistered command '{_command.Name}' and module '{_module.Name}'.");
         }
     }
 }
